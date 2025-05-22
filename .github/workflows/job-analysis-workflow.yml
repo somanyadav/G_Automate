@@ -1,0 +1,63 @@
+name: Weekly Job Analysis
+
+on:
+  schedule:
+    # Runs every Sunday at 9:00 AM UTC (adjust as needed)
+    - cron: '0 9 * * 0'
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  job-analysis:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Check if resume file exists
+      run: |
+        if [ ! -f "resume.pdf" ]; then
+          echo "Error: resume.pdf not found!"
+          echo "Please add your resume file to the repository"
+          exit 1
+        fi
+        
+    - name: Run job scraper
+      run: python job_scraper.py
+      
+    - name: Run job analyzer
+      env:
+        GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+      run: python job_analyzer.py
+      
+    - name: Upload results as artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: job-analysis-results
+        path: |
+          google_jobs_with_details.csv
+          analyzed_google_jobs_full.csv
+          shortlisted_google_jobs_full.csv
+          llm_response_cache.json
+          descriptions/
+        retention-days: 30
+        
+    - name: Commit and push results (optional)
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add *.csv *.json descriptions/ || true
+        git diff --staged --quiet || git commit -m "Weekly job analysis results - $(date '+%Y-%m-%d %H:%M:%S')"
+        git push || true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
