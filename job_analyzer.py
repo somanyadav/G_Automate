@@ -12,7 +12,8 @@ CSV_FILE_NAME = "google_jobs_with_details.csv"
 PDF_RESUME_FILE_NAME = "resume.pdf"  # Make sure to add your resume file
 
 # --- !! IMPORTANT CONFIGS FOR FULL RUN !! ---
-USE_EMBEDDING_PRE_FILTERING = True
+# These will be set as local variables in main() function
+DEFAULT_USE_EMBEDDING_PRE_FILTERING = True
 EMBEDDING_SIMILARITY_THRESHOLD = 0.55
 MAX_JOBS_AFTER_EMBEDDING_FILTER = 200
 MAX_JOBS_TO_ANALYZE_WITH_LLM = float('inf')
@@ -162,6 +163,9 @@ def get_llm_assessment_json(resume_content, job_details_text, job_title_for_llm,
 
 def main():
     """Main function"""
+    # Set configuration as local variables to avoid scoping issues
+    USE_EMBEDDING_PRE_FILTERING = DEFAULT_USE_EMBEDDING_PRE_FILTERING
+    
     start_time = time.time()
     print("--- Starting Full Job Fit Analysis ---")
     load_cache()
