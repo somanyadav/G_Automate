@@ -113,6 +113,7 @@ def get_llm_assessment_json(resume_content, job_details_text, job_title_for_llm,
     prompt = f"""
     You are a highly skilled career advisor and resume analyst.
     Your task is to evaluate the provided resume against a specific job description and return your analysis strictly in JSON format.
+    Also please make sure that The user has 2 years of experience. And is NOT focusing on core SDE roles. 
 
     **Resume Content:**
     ---
